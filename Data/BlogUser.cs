@@ -13,5 +13,7 @@ public class BlogUser : IdentityUser
     [RegularExpression(@"^[a-zA-Z0-9._-]*$")]
     public string CustomUsername { get; set; } = string.Empty;
 
+    // public ICollection<Post> Posts { get; set; }
+
     // Add roles (such as Admin and Writer)
 }
