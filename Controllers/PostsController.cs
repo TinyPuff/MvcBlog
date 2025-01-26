@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MvcBlog.Data;
 using MvcBlog.Models;
+using Microsoft.AspNetCore.Identity;
+using Humanizer;
 
 namespace MvcBlog.Controllers
 {
     public class PostsController : Controller
     {
         private readonly BlogDbContext _context;
+        private readonly UserManager<BlogUser> _userManager;
 
-        public PostsController(BlogDbContext context)
+        public PostsController(BlogDbContext context, UserManager<BlogUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Post
@@ -46,9 +50,10 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Post/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["AuthorID"] = new SelectList(_context.Users, "Id", "Id");
+            var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
+            ViewBag.AuthorID = currentUser.Id;
             return View();
         }
 
@@ -57,15 +62,29 @@ namespace MvcBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,Body,CreatedAt,UpdatedAt,AuthorID")] Post post)
+        public async Task<IActionResult> Create([Bind("ID,Title,Body,CreatedAt,UpdatedAt,AuthorID,Author")] Post post)
         {
+            var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
+            
+            ViewBag.AuthorID = currentUser.Id;
+
+            post.CreatedAt = DateTime.Now;
+            post.UpdatedAt = DateTime.Now;
+
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
             if (ModelState.IsValid)
             {
+                post.Author = currentUser;
+                post.AuthorID = currentUser.Id;
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorID"] = new SelectList(_context.Users, "Id", "Id", post.AuthorID);
+
             return View(post);
         }
 
