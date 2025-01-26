@@ -19,18 +19,16 @@ public class Post
 
     [Required]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy-mm-dd}", ApplyFormatInEditMode = true)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
     public DateTime CreatedAt { get; set; }
 
-    [Required]
     [DataType(DataType.DateTime)]
-    [DisplayFormat(DataFormatString = "{0:yyyy-mm-dd}", ApplyFormatInEditMode = true)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
     public DateTime UpdatedAt { get; set; }
 
     public string AuthorID { get; set; }
-    
-    [Required]
-    public BlogUser Author { get; set; }
+
+    public BlogUser? Author { get; set; }
 
     public ICollection<Comment>? Comments { get; set; }
 
