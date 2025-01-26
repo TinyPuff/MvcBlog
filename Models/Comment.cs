@@ -22,16 +22,16 @@ public class Comment
     [DataType(DataType.DateTime)]
     [DisplayFormat(DataFormatString = "{0:yyyy-mm-dd}", ApplyFormatInEditMode = true)]
     public DateTime UpdatedAt { get; set; }
+    
+    public string AuthorID { get; set; }
 
     [Required]
     public BlogUser Author { get; set; }
 
-    public int AuthorID { get; set; }
+    public int PostID { get; set; }
 
     [Required]
     public Post Post { get; set; }
-
-    public int PostID { get; set; }
 
     // Could add comment status so it'd have to be confirmed by an admin before showing up on a post.
 }
