@@ -1,7 +1,8 @@
 @using Microsoft.AspNetCore.Identity
+@using MvcBlog.Data
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<BlogUser> SignInManager
+@inject UserManager<BlogUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))

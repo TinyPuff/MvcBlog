@@ -1,4 +1,4 @@
-@inject SignInManager<BlogUser> SignInManager
+@inject SignInManager<MvcBlog.Data.BlogUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
