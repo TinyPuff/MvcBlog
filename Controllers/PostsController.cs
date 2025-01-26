@@ -10,11 +10,11 @@ using MvcBlog.Models;
 
 namespace MvcBlog.Controllers
 {
-    public class PostController : Controller
+    public class PostsController : Controller
     {
         private readonly BlogDbContext _context;
 
-        public PostController(BlogDbContext context)
+        public PostsController(BlogDbContext context)
         {
             _context = context;
         }
