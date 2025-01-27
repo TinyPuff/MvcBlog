@@ -23,14 +23,14 @@ namespace MvcBlog.Controllers
             _userManager = userManager;
         }
 
-        // GET: Post
+        // GET: Posts
         public async Task<IActionResult> Index()
         {
             var blogDbContext = _context.Post.Include(p => p.Author);
             return View(await blogDbContext.ToListAsync());
         }
 
-        // GET: Post/Details/5
+        // GET: Posts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -49,7 +49,7 @@ namespace MvcBlog.Controllers
             return View(post);
         }
 
-        // GET: Post/Create
+        // GET: Posts/Create
         public async Task<IActionResult> Create()
         {
             var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
@@ -57,7 +57,7 @@ namespace MvcBlog.Controllers
             return View();
         }
 
-        // POST: Post/Create
+        // POST: Posts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -88,7 +88,7 @@ namespace MvcBlog.Controllers
             return View(post);
         }
 
-        // GET: Post/Edit/5
+        // GET: Posts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -105,7 +105,7 @@ namespace MvcBlog.Controllers
             return View(post);
         }
 
-        // POST: Post/Edit/5
+        // POST: Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -141,7 +141,7 @@ namespace MvcBlog.Controllers
             return View(post);
         }
 
-        // GET: Post/Delete/5
+        // GET: Posts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -160,7 +160,7 @@ namespace MvcBlog.Controllers
             return View(post);
         }
 
-        // POST: Post/Delete/5
+        // POST: Posts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
