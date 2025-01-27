@@ -44,8 +44,6 @@ public class HomeController : Controller
             Posts = posts
         };
 
-        Console.WriteLine($"Posts count: {posts.Count}");
-        Console.WriteLine($"VM Posts count: {postsVM.Posts.Count}");
         return View(postsVM);
     }
 
