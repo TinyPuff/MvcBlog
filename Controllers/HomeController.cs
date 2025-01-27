@@ -22,18 +22,6 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        /* var allPosts = (from post in db.
-                       select new PostVM
-                       {
-                            ID = post.ID,
-                            Title = post.Title,
-                            Body = post.Body,
-                            CreatedAt = post.CreatedAt,
-                            UpdatedAt = post.UpdatedAt,
-                            Author = post.Author
-                       })
-                       .OrderByDescending(p => p.ID)
-                       .ToList(); */
         var posts = _context.Post
                     .Include(p => p.Author)
                     .OrderByDescending(p => p.CreatedAt)
