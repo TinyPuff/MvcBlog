@@ -20,16 +20,18 @@ public class HomeController : Controller
         _context = context;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(string currentFilter, string searchString, int? pageNumber)
     {
         var posts = _context.Post
                     .Include(p => p.Author)
-                    .OrderByDescending(p => p.CreatedAt)
-                    .ToList();
+                    .OrderByDescending(p => p.CreatedAt);
+
+        int pageSize = 3;
+        var paginatedPosts = await PaginatedList<Post>.CreateAsync(posts, pageNumber ?? 1, pageSize);
 
         var postsVM = new PostVM
         {
-            Posts = posts
+            Posts = paginatedPosts
         };
 
         return View(postsVM);
