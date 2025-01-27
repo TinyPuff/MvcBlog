@@ -4,5 +4,5 @@ namespace MvcBlog.Models.ViewModels;
 
 public class PostVM
 {
-    public List<Post> Posts { get; set; }
+    public PaginatedList<Post> Posts { get; set; }
 }
