@@ -13,7 +13,7 @@ public class PostVM
     public string Title { get; set;} = string.Empty;
 
     [Required]
-    [StringLength(400, ErrorMessage = "Text must be between 50 and 400 characters long.", MinimumLength = 50)]
+    [StringLength(400, ErrorMessage = "Text must have less than 400 characters.")]
     public string Body { get; set; } = string.Empty;
 
     public ICollection<Comment>? Comments { get; set; }
