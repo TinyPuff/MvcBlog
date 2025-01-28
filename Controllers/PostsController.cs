@@ -63,6 +63,7 @@ namespace MvcBlog.Controllers
         public async Task<IActionResult> Details(int id, [Bind("ID, Body")] PostDetailsVM comment)
         {
             var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
+
             if (id == null)
             {
                 return NotFound();
@@ -89,7 +90,6 @@ namespace MvcBlog.Controllers
                 Post = post
             };
 
-            Console.WriteLine($"1- Comments count: {post.Comments.Count()}");
             _context.Add(newComment);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details));
