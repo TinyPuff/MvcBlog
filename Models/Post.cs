@@ -28,7 +28,7 @@ public class Post
 
     public string AuthorID { get; set; }
 
-    public BlogUser? Author { get; set; }
+    public BlogUser Author { get; set; }
 
     public ICollection<Comment>? Comments { get; set; }
 
