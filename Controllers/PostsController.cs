@@ -10,6 +10,7 @@ using MvcBlog.Models;
 using Microsoft.AspNetCore.Identity;
 using Humanizer;
 using MvcBlog.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MvcBlog.Controllers
 {
@@ -41,19 +42,62 @@ namespace MvcBlog.Controllers
 
             var post = await _context.Post
                 .Include(p => p.Author)
+                .Include(p => p.Comments.OrderByDescending(c => c.CreatedAt))
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (post == null)
             {
                 return NotFound();
             }
 
-            return View(post);
+            var postDetails = new PostDetailsVM()
+            {
+                Body = "",
+                Post = post
+            };
+
+            return View(postDetails);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details(int id, [Bind("ID, Body")] PostDetailsVM comment)
+        {
+            var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var post = await _context.Post
+                .Include(p => p.Author)
+                .Include(c => c.Comments)
+                .FirstOrDefaultAsync(p => p.ID == id);
+            
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            var newComment = new Comment()
+            {
+                Body = comment.Body,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                AuthorID = currentUser.Id,
+                Author = currentUser,
+                PostID = post.ID,
+                Post = post
+            };
+
+            Console.WriteLine($"1- Comments count: {post.Comments.Count()}");
+            _context.Add(newComment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details));
         }
 
         // GET: Posts/Create
         public async Task<IActionResult> Create()
         {
-            var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
             return View();
         }
 

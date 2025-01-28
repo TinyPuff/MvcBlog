@@ -15,4 +15,6 @@ public class PostVM
     [Required]
     [StringLength(400, ErrorMessage = "Text must be between 50 and 400 characters long.", MinimumLength = 50)]
     public string Body { get; set; } = string.Empty;
+
+    public ICollection<Comment>? Comments { get; set; }
 }

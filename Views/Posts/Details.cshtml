@@ -1,48 +1,79 @@
-@model MvcBlog.Models.Post
+@model MvcBlog.Models.ViewModels.PostDetailsVM
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+@section Head {
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+}
 
-<div>
-    <h4>Post</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Body)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Body)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author.UserName)
-        </dd>
-    </dl>
+<div class="card w-50 mb-2">
+    <div class="card-body">
+        <h4 class="card-title">@Html.DisplayFor(model => model.Post.Title)</h4>
+        <h6 class="card-subtitle mb-2 text-body-secondary">@Html.DisplayFor(model => model.Post.Author.UserName)</h6>
+        <p class="card-text">@Html.Raw(WebUtility.HtmlEncode(Model.Post.Body).Replace("\n", "<br />"))</p>
+    </div>
 </div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="card w-50 mb-2">
+        <div class="card-body">
+            <h4 class="card-title">New Comment</h4>
+            <div class="row">
+                <div class="col-md">
+                    <form asp-action="Details">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Body" class="control-label"></label>
+                            <textarea asp-for="Body" class="form-control" id="editor" rows="10"></textarea>
+                            <span asp-validation-for="Body" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Post" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="card w-50 mb-2">
+    @if (Model.Post.Comments != null)
+    {
+        @foreach (var item in Model.Post.Comments)
+        {
+            <div class="card-md border-0 border-bottom">
+                <div class="card-body">
+                    <h5 class="card-title">by @item.Author.UserName</h5>
+                    <h6 class="card-subtitle">on @item.CreatedAt</h6>
+                    <p class="card-text">@Html.Raw(WebUtility.HtmlEncode(item.Body).Replace("\n", "<br />"))</p>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card-body">
+            <h5 class="card-text disabled">No comments...</h5>
+        </div>
+    }
+</div>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script>
+    const quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+    </script>
+}
