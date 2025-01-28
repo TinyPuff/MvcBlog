@@ -9,6 +9,7 @@ using MvcBlog.Data;
 using MvcBlog.Models;
 using Microsoft.AspNetCore.Identity;
 using Humanizer;
+using MvcBlog.Models.ViewModels;
 
 namespace MvcBlog.Controllers
 {
@@ -53,7 +54,6 @@ namespace MvcBlog.Controllers
         public async Task<IActionResult> Create()
         {
             var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
-            ViewBag.AuthorID = currentUser.Id;
             return View();
         }
 
@@ -62,14 +62,9 @@ namespace MvcBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,Body,CreatedAt,UpdatedAt,AuthorID,Author")] Post post)
+        public async Task<IActionResult> Create([Bind("ID,Title,Body")] PostVM post)
         {
             var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
-            
-            ViewBag.AuthorID = currentUser.Id;
-
-            post.CreatedAt = DateTime.Now;
-            post.UpdatedAt = DateTime.Now;
 
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
@@ -78,12 +73,21 @@ namespace MvcBlog.Controllers
 
             if (ModelState.IsValid)
             {
-                post.Author = currentUser;
-                post.AuthorID = currentUser.Id;
-                _context.Add(post);
+                var newPost = new Post()
+                {
+                    Title = post.Title,
+                    Body = post.Body,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    AuthorID = currentUser.Id,
+                    Author = currentUser
+                };
+
+                _context.Add(newPost);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            
 
             return View(post);
         }
