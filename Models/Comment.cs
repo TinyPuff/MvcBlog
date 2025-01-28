@@ -10,7 +10,7 @@ public class Comment
     public int ID { get; set; }
 
     [Required]
-    [StringLength(400, ErrorMessage = "Text must be between 50 and 400 characters long.", MinimumLength = 50)]
+    [StringLength(150, ErrorMessage = "Comment cannot have more than 150 characters.")]
     public string Body { get; set; } = string.Empty;
 
     [Required]

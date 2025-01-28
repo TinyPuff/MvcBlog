@@ -14,7 +14,7 @@ public class Post
     public string Title { get; set;} = string.Empty;
 
     [Required]
-    [StringLength(400, ErrorMessage = "Text must be between 50 and 400 characters long.", MinimumLength = 50)]
+    [StringLength(400, ErrorMessage = "Text cannot have more than 400 characters.")]
     public string Body { get; set; } = string.Empty;
 
     [Required]
