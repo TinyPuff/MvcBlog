@@ -29,12 +29,12 @@ public class HomeController : Controller
         int pageSize = 3;
         var paginatedPosts = await PaginatedList<Post>.CreateAsync(posts, pageNumber ?? 1, pageSize);
 
-        var postsVM = new PostVM
+        var homeVM = new HomeVM
         {
             Posts = paginatedPosts
         };
 
-        return View(postsVM);
+        return View(homeVM);
     }
 
     public IActionResult Privacy()
