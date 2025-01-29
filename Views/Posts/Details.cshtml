@@ -11,7 +11,8 @@
 <div class="card w-50 mb-2">
     <div class="card-body">
         <h4 class="card-title">@Html.DisplayFor(model => model.Post.Title)</h4>
-        <h6 class="card-subtitle mb-2 text-body-secondary">@Html.DisplayFor(model => model.Post.Author.UserName)</h6>
+        <h6 class="card-subtitle mb-2 text-body-secondary">By @Html.DisplayFor(model => model.Post.Author.UserName), 
+            Posted On: @Html.DisplayFor(model => model.Post.CreatedAt)</h6>
         <p class="card-text">@Html.Raw(WebUtility.HtmlEncode(Model.Post.Body).Replace("\n", "<br />"))</p>
     </div>
 </div>
@@ -53,8 +54,8 @@
         {
             <div class="card-md border-0 border-bottom">
                 <div class="card-body">
-                    <h5 class="card-title">by @item.Author.UserName</h5>
-                    <h6 class="card-subtitle">on @item.CreatedAt</h6>
+                    <h5 class="card-title">By @item.Author.UserName</h5>
+                    <h6 class="card-subtitle">on @Html.DisplayFor(modelItem => item.CreatedAt)</h6>
                     <p class="card-text">@Html.Raw(WebUtility.HtmlEncode(item.Body).Replace("\n", "<br />"))</p>
                 </div>
             </div>
