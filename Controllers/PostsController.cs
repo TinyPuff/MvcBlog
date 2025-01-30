@@ -51,7 +51,7 @@ namespace MvcBlog.Controllers
 
             var postDetails = new PostDetailsVM()
             {
-                Body = "",
+                Body = post.Body,
                 Post = post
             };
 
@@ -96,6 +96,7 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Posts/Create
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             return View();
@@ -104,6 +105,7 @@ namespace MvcBlog.Controllers
         // POST: Posts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Title,Body")] PostVM post)
@@ -137,6 +139,7 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Posts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -149,32 +152,59 @@ namespace MvcBlog.Controllers
             {
                 return NotFound();
             }
-            ViewData["AuthorID"] = new SelectList(_context.Users, "Id", "Id", post.AuthorID);
-            return View(post);
+
+            var postVM = new PostVM
+            {
+                ID = post.ID,
+                Title = post.Title,
+                Body = post.Body
+            };
+
+            return View(postVM);
         }
 
         // POST: Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body,CreatedAt,UpdatedAt,AuthorID")] Post post)
-        {
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body")] PostVM post)
+        {   
             if (id != post.ID)
             {
                 return NotFound();
             }
 
+            var postToUpdate = await _context.Post
+                .Include(p => p.Author)
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.ID == id);
+
+            if (postToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
             if (ModelState.IsValid)
             {
+                postToUpdate.Title = post.Title;
+                postToUpdate.Body = post.Body;
+                postToUpdate.UpdatedAt = DateTime.Now;
+
                 try
                 {
-                    _context.Update(post);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostExists(post.ID))
+                    if (!PostExists(postToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -183,9 +213,7 @@ namespace MvcBlog.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorID"] = new SelectList(_context.Users, "Id", "Id", post.AuthorID);
             return View(post);
         }
 
