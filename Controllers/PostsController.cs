@@ -51,7 +51,7 @@ namespace MvcBlog.Controllers
 
             var postDetails = new PostDetailsVM()
             {
-                Body = post.Body,
+                Body = "",
                 Post = post
             };
 
