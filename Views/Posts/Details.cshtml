@@ -5,7 +5,8 @@
 }
 
 @section Head {
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css" rel="stylesheet"
+        type="text/css" />
 }
 
 <div class="card w-50 mb-2">
@@ -13,7 +14,7 @@
         <h4 class="card-title">@Html.DisplayFor(model => model.Post.Title)</h4>
         <h6 class="card-subtitle mb-2 text-body-secondary">By @Html.DisplayFor(model => model.Post.Author.UserName), 
             Posted On: @Html.DisplayFor(model => model.Post.CreatedAt)</h6>
-        <p class="card-text">@Html.Raw(Model.Body)</p>
+        <p class="card-text">@Html.Raw(Model.Post.Body)</p>
     </div>
 </div>
 
@@ -29,7 +30,7 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <label asp-for="Body" class="control-label"></label>
-                            <textarea asp-for="Body" class="form-control" id="editor" rows="10"></textarea>
+                            <textarea asp-for="Body" class="form-control" id="froala-editor" rows="10"></textarea>
                             <span asp-validation-for="Body" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -76,10 +77,8 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    <script>
-    const quill = new Quill('#editor', {
-        theme: 'snow'
-    });
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>  
+    <script> 
+        var editor = new FroalaEditor('textarea#froala-editor');
     </script>
 }
