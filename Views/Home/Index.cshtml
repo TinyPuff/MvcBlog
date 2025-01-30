@@ -10,7 +10,7 @@
             <h4 class="card-title">@item.Title</h4>
             <h6 class="card-subtitle mb-2 text-body-secondary">By @item.Author.UserName, 
                 Posted On: @Html.DisplayFor(modelItem => item.CreatedAt)</h6>
-            <p class="card-text">@Html.Raw(WebUtility.HtmlEncode(item.Body).Replace("\n", "<br />"))</p>
+            <p class="card-text">@Html.Raw(item.Body)</p>
             <a class="btn btn-primary" href="/Posts/Details/@item.ID">Read more</a>
         </div>
     </div>
