@@ -21,6 +21,7 @@ public class BlogDbContext : IdentityDbContext<BlogUser>
         // Add your customizations after calling base.OnModelCreating(builder);
     }
 
-public DbSet<Post> Post { get; set; } = default!;
-public DbSet<Comment> Comment { get; set; }
+public DbSet<Post> Post { get; set; } = default!; // should change this to Posts
+public DbSet<Comment> Comment { get; set; } // should change this to Comments
+public DbSet<Category> Categories { get; set; }
 }
