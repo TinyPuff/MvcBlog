@@ -16,4 +16,6 @@ public class PostDetailsVM
     public Post Post { get; set; }
 
     public PaginatedList<Comment>? Comments { get; set; }
+
+    public ICollection<Category>? Categories { get; set; }
 }

@@ -42,6 +42,7 @@ namespace MvcBlog.Controllers
 
             var post = await _context.Post
                 .Include(p => p.Author)
+                .Include(c => c.Categories)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (post == null)
             {
@@ -108,6 +109,8 @@ namespace MvcBlog.Controllers
         [Authorize]
         public async Task<IActionResult> Create()
         {
+            var categories = _context.Categories.ToList();
+            ViewBag.Categories = categories;
             return View();
         }
 
@@ -117,15 +120,19 @@ namespace MvcBlog.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,Body")] PostVM post)
+        public async Task<IActionResult> Create([Bind("ID,Title,Body,SelectedCategories")] PostVM post)
         {
             var currentUser = await _userManager.GetUserAsync(User); // gives us the current logged-in user
+
+            var categories = _context.Categories
+                .Where(c => post.SelectedCategories.Contains(c.ID))
+                .ToList();
 
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
                 Console.WriteLine(error.ErrorMessage);
             }
-
+            
             if (ModelState.IsValid)
             {
                 var newPost = new Post()
@@ -135,7 +142,8 @@ namespace MvcBlog.Controllers
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     AuthorID = currentUser.Id,
-                    Author = currentUser
+                    Author = currentUser,
+                    Categories = categories
                 };
 
                 _context.Add(newPost);

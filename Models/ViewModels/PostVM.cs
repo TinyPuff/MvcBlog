@@ -15,4 +15,7 @@ public class PostVM
     [Required]
     [StringLength(400, ErrorMessage = "Text must have less than 400 characters.")]
     public string Body { get; set; } = string.Empty;
+    
+    public List<int>? SelectedCategories { get; set; }
+    public IEnumerable<Category>? Categories { get; set; } = new List<Category>();
 }
