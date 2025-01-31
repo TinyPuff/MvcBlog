@@ -33,7 +33,7 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int? pageNumber)
         {
             if (id == null)
             {
@@ -42,17 +42,26 @@ namespace MvcBlog.Controllers
 
             var post = await _context.Post
                 .Include(p => p.Author)
-                .Include(p => p.Comments.OrderByDescending(c => c.CreatedAt))
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (post == null)
             {
                 return NotFound();
             }
 
+            int pageSize = 3;
+
+            IQueryable<Comment> commentsIQ = from c in _context.Comment
+                select c;
+
+            commentsIQ = commentsIQ.Where(c => c.PostID == post.ID).OrderByDescending(d => d.CreatedAt);
+            
+            var comments = await PaginatedList<Comment>.CreateAsync(commentsIQ, pageNumber ?? 1, pageSize);
+
             var postDetails = new PostDetailsVM()
             {
                 Body = "",
-                Post = post
+                Post = post,
+                Comments = comments
             };
 
             return View(postDetails);

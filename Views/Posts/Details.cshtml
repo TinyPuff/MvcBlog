@@ -49,9 +49,9 @@
 
 
 <div class="card w-50 mb-2">
-    @if (Model.Post.Comments.Count() > 0)
+    @if (Model.Comments.Count() > 0)
     {
-        @foreach (var item in Model.Post.Comments)
+        @foreach (var item in Model.Comments)
         {
             <div class="card-md border-0 border-bottom">
                 <div class="card-body">
@@ -69,6 +69,60 @@
         </div>
     }
 </div>
+
+@{
+    var prevDisabled = !Model.Comments.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Comments.HasNextPage ? "disabled" : "";
+}
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <!-- Previous Page Link -->
+        @if (Model.Comments.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-pageNumber="@(Model.Comments.PageIndex - 1)">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+        }
+
+        <!-- Page Number Links -->
+        @for (int i = 1; i <= Model.Comments.TotalPages; i++)
+        {
+            if (i == Model.Comments.PageIndex)
+            {
+                <li class="page-item active">
+                    <span class="page-link">@i</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+        }
+
+        <!-- Next Page Link -->
+        @if (Model.Comments.HasNextPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-pageNumber="@(Model.Comments.PageIndex + 1)">Next</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+        }
+    </ul>
+</nav>
 
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |

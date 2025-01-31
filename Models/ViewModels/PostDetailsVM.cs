@@ -14,4 +14,6 @@ public class PostDetailsVM
     public string Body { get; set; } = string.Empty;
 
     public Post Post { get; set; }
+
+    public PaginatedList<Comment>? Comments { get; set; }
 }
