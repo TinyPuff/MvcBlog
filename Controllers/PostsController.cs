@@ -164,11 +164,19 @@ namespace MvcBlog.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post.FindAsync(id);
+            var post = await _context.Post
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.ID == id);
+
             if (post == null)
             {
                 return NotFound();
             }
+
+            var categories = _context.Categories.ToList();
+            var selectedCategories = post.Categories.ToList();
+            ViewBag.Categories = categories;
+            ViewBag.SelectedCategories = selectedCategories;
 
             var postVM = new PostVM
             {
@@ -186,7 +194,7 @@ namespace MvcBlog.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body")] PostVM post)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body,SelectedCategories")] PostVM post)
         {   
             if (id != post.ID)
             {
@@ -196,12 +204,17 @@ namespace MvcBlog.Controllers
             var postToUpdate = await _context.Post
                 .Include(p => p.Author)
                 .Include(p => p.Comments)
+                .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.ID == id);
 
             if (postToUpdate == null)
             {
                 return NotFound();
             }
+
+            var categories = _context.Categories
+                .Where(c => post.SelectedCategories.Contains(c.ID))
+                .ToList();
 
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
@@ -213,6 +226,7 @@ namespace MvcBlog.Controllers
                 postToUpdate.Title = post.Title;
                 postToUpdate.Body = post.Body;
                 postToUpdate.UpdatedAt = DateTime.Now;
+                postToUpdate.Categories = categories;
 
                 try
                 {
