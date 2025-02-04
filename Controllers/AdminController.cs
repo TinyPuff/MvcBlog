@@ -102,15 +102,13 @@ public class AdminController : Controller
 
         return View(adminPostsVM);
     }
+
     public async Task<IActionResult> Categories(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
         ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
         ViewData["IDSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
         ViewData["CurrentFilter"] = searchString;
-
-        var currentUser = await _userManager.GetUserAsync(User);
-        ViewData["Username"] = currentUser.UserName;
 
         if (searchString != null)
         {
@@ -158,5 +156,80 @@ public class AdminController : Controller
         ViewBag.EndItem = Math.Min(ViewBag.StartItem + (pageSize ?? 5) - 1, categories.Count()); // Shows the index of the last item on the table
 
         return View(adminCategoriesVM);
+    }
+
+    public async Task<IActionResult> Comments(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    {
+        ViewData["CurrentSort"] = sortOrder;
+        ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
+        ViewData["IDSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+        ViewData["CreateSortParm"] = sortOrder == "Create" ? "create_desc" : "Create";
+        ViewData["UpdateSortParm"] = sortOrder == "Update" ? "update_desc" : "Update";
+        ViewData["CurrentFilter"] = searchString;
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        ViewData["Username"] = currentUser.UserName;
+
+        if (searchString != null)
+        {
+            pageNumber = 1;
+        }
+        else
+        {
+            searchString = currentFilter;
+        }
+
+        var comments = _context.Comment
+            .Include(p => p.Post)
+            .Include(p => p.Author)
+            .AsQueryable();
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            comments = comments.Where(p => p.Post.Title.ToLower().Contains(searchString.ToLower()) 
+                || p.Author.UserName.ToLower().Contains(searchString.ToLower()));
+        }
+
+        switch (sortOrder)
+        {
+            case "Title":
+                comments = comments.OrderBy(p => p.Post.Title);
+                break;
+            case "title_desc":
+                comments = comments.OrderByDescending(p => p.Post.Title);
+                break;
+            case "id_desc":
+                comments = comments.OrderByDescending(p => p.ID);
+                break;
+            case "Create":
+                comments = comments.OrderBy(p => p.CreatedAt);
+                break;
+            case "create_desc":
+                comments = comments.OrderByDescending(p => p.CreatedAt);
+                break;
+            case "Update":
+                comments = comments.OrderBy(p => p.UpdatedAt);
+                break;
+            case "update_desc":
+                comments = comments.OrderByDescending(p => p.UpdatedAt);
+                break;
+            default:
+                comments = comments.OrderBy(p => p.ID);
+                break;
+        }
+
+        var paginatedComments = await PaginatedList<Comment>.CreateAsync(comments, pageNumber ?? 1, pageSize ?? 5);
+
+        var adminCommentsVM = new AdminCommentsVM
+        {
+            Comments = paginatedComments
+        };
+
+        ViewBag.PageSize = pageSize ?? 5;
+        ViewBag.TotalPages = comments.Count();
+        ViewBag.StartItem = (((pageNumber ?? 1) - 1) * (pageSize ?? 5)) + 1; // Shows the index of the first item on the table
+        ViewBag.EndItem = Math.Min(ViewBag.StartItem + (pageSize ?? 5) - 1, comments.Count()); // Shows the index of the last item on the table
+
+        return View(adminCommentsVM);
     }
 }
