@@ -159,6 +159,8 @@ namespace MvcBlog.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
             if (id == null)
             {
                 return NotFound();
@@ -171,6 +173,11 @@ namespace MvcBlog.Controllers
             if (post == null)
             {
                 return NotFound();
+            }
+            
+            if (currentUser != post.Author)
+            {
+                return RedirectToAction(nameof(Index));
             }
 
             var categories = _context.Categories.ToList();

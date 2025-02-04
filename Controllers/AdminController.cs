@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MvcBlog.Controllers;
 
@@ -21,12 +22,14 @@ public class AdminController : Controller
     }
 
     // GET
+    [Authorize]
     public IActionResult Index()
     {
         return View();
     }
 
     // GET
+    [Authorize]
     public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -35,6 +38,9 @@ public class AdminController : Controller
         ViewData["CreateSortParm"] = sortOrder == "Create" ? "create_desc" : "Create";
         ViewData["UpdateSortParm"] = sortOrder == "Update" ? "update_desc" : "Update";
         ViewData["CurrentFilter"] = searchString;
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        ViewData["Username"] = currentUser.UserName;
 
         if (searchString != null)
         {
