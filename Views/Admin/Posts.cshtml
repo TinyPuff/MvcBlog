@@ -1,0 +1,123 @@
+@model MvcBlog.Models.ViewModels.AdminPostsVM
+
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Posts";
+}
+
+<div class="card shadow">
+    <div class="card-header py-3">
+        <p class="text-primary m-0 fw-bold">Posts</p>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 text-nowrap">
+                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                    <form method="get">
+                        <label class="form-label">Show
+                            <select name="pageSize" class="d-inline-block form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
+                                <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                                <option value="15" selected="@(ViewBag.PageSize == 15)">15</option>
+                            </select>
+                        </label>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="dataTable_filter" class="text-md-end dataTables_filter"><label class="form-label"><input class="form-control form-control-sm" type="search" aria-controls="dataTable" placeholder="Search" /></label></div>
+            </div>
+        </div>
+        <div id="dataTable" class="table-responsive table mt-2" role="grid" aria-describedby="dataTable_info">
+            <table id="dataTable" class="table my-0">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.Posts[0].Title)</th>
+                        <th>@Html.DisplayNameFor(model => model.Posts[0].Body)</th>
+                        <th>@Html.DisplayNameFor(model => model.Posts[0].Author)</th>
+                        <th>@Html.DisplayNameFor(model => model.Posts[0].CreatedAt)</th>
+                        <th>@Html.DisplayNameFor(model => model.Posts[0].UpdatedAt)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Posts)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            @if (item.Body.Length > 50)
+                            {
+                                <td>@Html.Raw(item.Body.Substring(0, 50).Replace("<br>", "&ensp;"))</td>
+                            }
+                            else
+                            {
+                                <td>@Html.Raw(item.Body.Replace("<br />", "&ensp;"))</td>
+                            }
+                            <td>@Html.DisplayFor(modelItem => item.Author.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                            <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-md-6 align-self-center">
+                <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing @ViewBag.StartItem to @ViewBag.EndItem of @ViewBag.TotalPages</p>
+            </div>
+            <div class="col-md-6">
+                <nav class="d-lg-flex justify-content-lg-end">
+                    <ul class="pagination">
+                        <!-- Previous Page Link -->
+                        @if (Model.Posts.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex - 1)">
+                                    <span aria-hidden="true">«</span>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">«</span>
+                            </li>
+                        }
+
+                        <!-- Page Number Links -->
+                        @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+                        {
+                            if (i == Model.Posts.PageIndex)
+                            {
+                                <li class="page-item active">
+                                    <span class="page-link">@i</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                                </li>
+                            }
+                        }
+
+                        <!-- Next Page Link -->
+                        @if (Model.Posts.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex + 1)">
+                                    <span aria-hidden="true">»</span>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">»</span>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
