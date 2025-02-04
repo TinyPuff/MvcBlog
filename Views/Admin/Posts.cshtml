@@ -49,6 +49,7 @@
                         <th>@Html.DisplayNameFor(model => model.Posts[0].Author)</th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].CreatedAt)</th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].UpdatedAt)</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,6 +69,17 @@
                             <td>@Html.DisplayFor(modelItem => item.Author.UserName)</td>
                             <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
                             <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
+                            <td>
+                                @if (ViewData["Username"] == item.Author.UserName)
+                                {
+                                    <a class="btn btn-primary" asp-controller="Posts" asp-action="Edit" asp-route-id="@item.ID"><i class="fas fa-pencil-alt"></i></a> 
+                                }
+                                else
+                                {
+                                    <a class="btn btn-primary disabled" asp-controller="Posts" asp-action="Edit" asp-route-id="@item.ID"><i class="fas fa-pencil-alt"></i></a> 
+                                }
+                                <a class="btn btn-danger" asp-controller="Posts" asp-action="Delete" asp-route-id="@item.ID"><i class="fas fa-trash"></i></a>
+                            </td>
                         </tr>
                     }
                 </tbody>
