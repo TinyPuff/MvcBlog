@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MvcBlog.Controllers;
 
+[Authorize]
 public class AdminController : Controller
 {
     private readonly BlogDbContext _context;
@@ -22,14 +23,12 @@ public class AdminController : Controller
     }
 
     // GET
-    [Authorize]
     public IActionResult Index()
     {
         return View();
     }
 
     // GET
-    [Authorize]
     public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -103,5 +102,61 @@ public class AdminController : Controller
 
         return View(adminPostsVM);
     }
+    public async Task<IActionResult> Categories(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    {
+        ViewData["CurrentSort"] = sortOrder;
+        ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
+        ViewData["IDSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+        ViewData["CurrentFilter"] = searchString;
 
+        var currentUser = await _userManager.GetUserAsync(User);
+        ViewData["Username"] = currentUser.UserName;
+
+        if (searchString != null)
+        {
+            pageNumber = 1;
+        }
+        else
+        {
+            searchString = currentFilter;
+        }
+
+        var categories = _context.Categories
+            .AsQueryable();
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            categories = categories.Where(p => p.Title.ToLower().Contains(searchString.ToLower()));
+        }
+
+        switch (sortOrder)
+        {
+            case "Title":
+                categories = categories.OrderBy(p => p.Title);
+                break;
+            case "title_desc":
+               categories =categories.OrderByDescending(p => p.Title);
+                break;
+            case "id_desc":
+                categories = categories.OrderByDescending(p => p.ID);
+                break;
+            default:
+                categories = categories.OrderBy(p => p.ID);
+                break;
+        }
+
+        var paginatedCategories = await PaginatedList<Category>.CreateAsync(categories, pageNumber ?? 1, pageSize ?? 5);
+
+        var adminCategoriesVM = new AdminCategoriesVM
+        {
+            Categories = paginatedCategories
+        };
+
+        ViewBag.PageSize = pageSize ?? 5;
+        ViewBag.TotalPages = categories.Count();
+        ViewBag.StartItem = (((pageNumber ?? 1) - 1) * (pageSize ?? 5)) + 1; // Shows the index of the first item on the table
+        ViewBag.EndItem = Math.Min(ViewBag.StartItem + (pageSize ?? 5) - 1, categories.Count()); // Shows the index of the last item on the table
+
+        return View(adminCategoriesVM);
+    }
 }
