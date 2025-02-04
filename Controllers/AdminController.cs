@@ -27,9 +27,62 @@ public class AdminController : Controller
     }
 
     // GET
-    public async Task<IActionResult> Posts(int? pageNumber, int? pageSize)
+    public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
     {
-        var posts = _context.Post.Include(p => p.Author).OrderByDescending(d => d.CreatedAt);
+        ViewData["CurrentSort"] = sortOrder;
+        ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
+        ViewData["IDSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+        ViewData["CreateSortParm"] = sortOrder == "Create" ? "create_desc" : "Create";
+        ViewData["UpdateSortParm"] = sortOrder == "Update" ? "update_desc" : "Update";
+        ViewData["CurrentFilter"] = searchString;
+
+        if (searchString != null)
+        {
+            pageNumber = 1;
+        }
+        else
+        {
+            searchString = currentFilter;
+        }
+
+        var posts = _context.Post
+            .Include(p => p.Author)
+            .AsQueryable();
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            posts = posts.Where(p => p.Title.ToLower().Contains(searchString.ToLower()) 
+                || p.Author.UserName.ToLower().Contains(searchString.ToLower()));
+        }
+
+        switch (sortOrder)
+        {
+            case "Title":
+                posts = posts.OrderBy(p => p.Title);
+                break;
+            case "title_desc":
+                posts = posts.OrderByDescending(p => p.Title);
+                break;
+            case "id_desc":
+                posts = posts.OrderByDescending(p => p.ID);
+                break;
+            case "Create":
+                posts = posts.OrderBy(p => p.CreatedAt);
+                break;
+            case "create_desc":
+                posts = posts.OrderByDescending(p => p.CreatedAt);
+                break;
+            case "Update":
+                posts = posts.OrderBy(p => p.UpdatedAt);
+                break;
+            case "update_desc":
+                posts = posts.OrderByDescending(p => p.UpdatedAt);
+                break;
+            default:
+                posts = posts.OrderBy(p => p.ID);
+                break;
+        }
+
         var paginatedPosts = await PaginatedList<Post>.CreateAsync(posts, pageNumber ?? 1, pageSize ?? 5);
 
         var adminPostsVM = new AdminPostsVM

@@ -25,14 +25,26 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div id="dataTable_filter" class="text-md-end dataTables_filter"><label class="form-label"><input class="form-control form-control-sm" type="search" aria-controls="dataTable" placeholder="Search" /></label></div>
+                <div id="dataTable_filter" class="text-md-end dataTables_filter">
+                    <label class="form-label">
+                        <form asp-action="Posts" method="get">
+                            <input type="text" class="form-control form-control-sm" aria-controls="dataTable" name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Search" />
+                            <input type="hidden" value="" class="btn btn-default" />
+                        </form>
+                    </label>
+                </div>
             </div>
         </div>
         <div id="dataTable" class="table-responsive table mt-2" role="grid" aria-describedby="dataTable_info">
             <table id="dataTable" class="table my-0">
                 <thead>
                     <tr>
-                        <th>@Html.DisplayNameFor(model => model.Posts[0].Title)</th>
+                        <th>
+                            <a asp-action="Posts" asp-route-sortOrder="@ViewData["IDSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Posts[0].ID)</a>
+                        </th>
+                        <th>
+                            <a asp-action="Posts" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Posts[0].Title)</a>
+                        </th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].Body)</th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].Author)</th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].CreatedAt)</th>
@@ -43,6 +55,7 @@
                     @foreach (var item in Model.Posts)
                     {
                         <tr>
+                            <td>@Html.DisplayFor(modelItem => item.ID)</td>
                             <td>@Html.DisplayFor(modelItem => item.Title)</td>
                             @if (item.Body.Length > 50)
                             {
@@ -71,7 +84,7 @@
                         @if (Model.Posts.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex - 1)">
+                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@(Model.Posts.PageIndex - 1)">
                                     <span aria-hidden="true">«</span>
                                 </a>
                             </li>
@@ -95,7 +108,7 @@
                             else
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                                    <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@i">@i</a>
                                 </li>
                             }
                         }
@@ -104,7 +117,7 @@
                         @if (Model.Posts.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex + 1)">
+                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@(Model.Posts.PageIndex + 1)">
                                     <span aria-hidden="true">»</span>
                                 </a>
                             </li>
