@@ -232,4 +232,71 @@ public class AdminController : Controller
 
         return View(adminCommentsVM);
     }
+
+    public async Task<IActionResult> Users(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    {
+        ViewData["CurrentSort"] = sortOrder;
+        ViewData["EmailSortParm"] = sortOrder == "Email" ? "email_desc" : "Email";
+        ViewData["UsernameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "username_desc" : "";
+        ViewData["NameSortParm"] = sortOrder == "Name" ? "name_desc" : "Name";
+        ViewData["CurrentFilter"] = searchString;
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        ViewData["Username"] = currentUser.UserName;
+
+        if (searchString != null)
+        {
+            pageNumber = 1;
+        }
+        else
+        {
+            searchString = currentFilter;
+        }
+
+        var users = _context.Users.AsQueryable();
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            users = users.Where(p => p.UserName.ToLower().Contains(searchString.ToLower()) 
+                || p.Name.ToLower().Contains(searchString.ToLower())
+                || p.UserName.ToLower().Contains(searchString.ToLower()) 
+                || p.Email.ToLower().Contains(searchString.ToLower()));
+        }
+
+        switch (sortOrder)
+        {
+            case "Email":
+                users = users.OrderBy(p => p.Email);
+                break;
+            case "email_desc":
+                users = users.OrderByDescending(p => p.Email);
+                break;
+            case "username_desc":
+                users = users.OrderByDescending(p => p.UserName);
+                break;
+            case "Name":
+                users = users.OrderBy(p => p.Name);
+                break;
+            case "name_desc":
+                users = users.OrderByDescending(p => p.Name);
+                break;
+            default:
+                users = users.OrderBy(p => p.UserName);
+                break;
+        }
+
+        var paginatedUsers = await PaginatedList<BlogUser>.CreateAsync(users, pageNumber ?? 1, pageSize ?? 5);
+
+        var adminUsersVM = new AdminUsersVM
+        {
+            Users = paginatedUsers
+        };
+
+        ViewBag.PageSize = pageSize ?? 5;
+        ViewBag.TotalPages = users.Count();
+        ViewBag.StartItem = (((pageNumber ?? 1) - 1) * (pageSize ?? 5)) + 1; // Shows the index of the first item on the table
+        ViewBag.EndItem = Math.Min(ViewBag.StartItem + (pageSize ?? 5) - 1, users.Count()); // Shows the index of the last item on the table
+
+        return View(adminUsersVM);
+    }
 }
