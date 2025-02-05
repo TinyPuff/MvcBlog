@@ -177,7 +177,10 @@ namespace MvcBlog.Controllers
             
             if (currentUser != post.Author)
             {
-                return RedirectToAction(nameof(Index));
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             var categories = _context.Categories.ToList();
@@ -203,6 +206,8 @@ namespace MvcBlog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body,SelectedCategories")] PostVM post)
         {   
+            var currentUser = await _userManager.GetUserAsync(User);
+
             if (id != post.ID)
             {
                 return NotFound();
@@ -213,6 +218,14 @@ namespace MvcBlog.Controllers
                 .Include(p => p.Comments)
                 .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.ID == id);
+
+            if (currentUser != postToUpdate.Author)
+            {
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
             if (postToUpdate == null)
             {
@@ -256,8 +269,11 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Posts/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
             if (id == null)
             {
                 return NotFound();
@@ -266,6 +282,15 @@ namespace MvcBlog.Controllers
             var post = await _context.Post
                 .Include(p => p.Author)
                 .FirstOrDefaultAsync(m => m.ID == id);
+            
+            if (currentUser != post.Author)
+            {
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            
             if (post == null)
             {
                 return NotFound();
@@ -275,14 +300,25 @@ namespace MvcBlog.Controllers
         }
 
         // POST: Posts/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
             var post = await _context.Post.FindAsync(id);
+
             if (post != null)
             {
                 _context.Post.Remove(post);
+            }
+
+            if (currentUser != post.Author)
+            {
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             await _context.SaveChangesAsync();
