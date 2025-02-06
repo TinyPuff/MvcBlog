@@ -52,10 +52,10 @@ namespace MvcBlog.Controllers
             int pageSize = 3;
 
             IQueryable<Comment> commentsIQ = from c in _context.Comment
-                select c;
+                                             select c;
 
             commentsIQ = commentsIQ.Where(c => c.PostID == post.ID).OrderByDescending(d => d.CreatedAt);
-            
+
             var comments = await PaginatedList<Comment>.CreateAsync(commentsIQ, pageNumber ?? 1, pageSize);
 
             var postDetails = new PostDetailsVM()
@@ -83,7 +83,7 @@ namespace MvcBlog.Controllers
                 .Include(p => p.Author)
                 .Include(c => c.Comments)
                 .FirstOrDefaultAsync(p => p.ID == id);
-            
+
             if (post == null)
             {
                 return NotFound();
@@ -132,7 +132,7 @@ namespace MvcBlog.Controllers
             {
                 Console.WriteLine(error.ErrorMessage);
             }
-            
+
             if (ModelState.IsValid)
             {
                 var newPost = new Post()
@@ -148,9 +148,9 @@ namespace MvcBlog.Controllers
 
                 _context.Add(newPost);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = newPost.ID });
             }
-            
+
 
             return View(post);
         }
@@ -174,7 +174,7 @@ namespace MvcBlog.Controllers
             {
                 return NotFound();
             }
-            
+
             if (currentUser != post.Author)
             {
                 if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
@@ -205,7 +205,7 @@ namespace MvcBlog.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Title,Body,SelectedCategories")] PostVM post)
-        {   
+        {
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (id != post.ID)
@@ -282,7 +282,7 @@ namespace MvcBlog.Controllers
             var post = await _context.Post
                 .Include(p => p.Author)
                 .FirstOrDefaultAsync(m => m.ID == id);
-            
+
             if (currentUser != post.Author)
             {
                 if (await _userManager.IsInRoleAsync(currentUser, "Admin") == false)
@@ -290,7 +290,7 @@ namespace MvcBlog.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-            
+
             if (post == null)
             {
                 return NotFound();
