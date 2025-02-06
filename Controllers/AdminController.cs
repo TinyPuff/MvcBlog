@@ -25,7 +25,17 @@ public class AdminController : Controller
     // GET
     public IActionResult Index()
     {
-        return View();
+        var categories = _context.Categories.ToList();
+        ViewBag.Categories = categories;
+
+        var dashboardInfo = new AdminIndexVM
+        {
+            TotalPosts = _context.Post.Count(),
+            TotalUsers = _userManager.Users.Count(),
+            TotalComments = _context.Comment.Count(),
+            TotalCategories = _context.Categories.Count()
+        };
+        return View(dashboardInfo);
     }
 
     // GET
