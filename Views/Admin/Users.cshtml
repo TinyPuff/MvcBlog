@@ -15,7 +15,8 @@
                 <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
                     <form method="get">
                         <label class="form-label">Show
-                            <select name="pageSize" class="d-inline-block form-select form-select-sm" onchange="this.form.submit()">
+                            <select name="pageSize" class="d-inline-block form-select form-select-sm"
+                                onchange="this.form.submit()">
                                 <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
                                 <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
                                 <option value="15" selected="@(ViewBag.PageSize == 15)">15</option>
@@ -27,8 +28,9 @@
             <div class="col-md-6">
                 <div id="dataTable_filter" class="text-md-end dataTables_filter">
                     <label class="form-label">
-                        <form asp-action="Posts" method="get">
-                            <input type="text" class="form-control form-control-sm" aria-controls="dataTable" name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Search" />
+                        <form asp-action="Users" method="get">
+                            <input type="text" class="form-control form-control-sm" aria-controls="dataTable"
+                                name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Search" />
                             <input type="hidden" value="" class="btn btn-default" />
                         </form>
                     </label>
@@ -40,12 +42,17 @@
                 <thead>
                     <tr>
                         <th>
-                            <a asp-action="Users" asp-route-sortOrder="@ViewData["UsernameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Users[0].UserName)</a>
+                            <a asp-action="Users" asp-route-sortOrder="@ViewData["UsernameSortParm"]"
+                                asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model =>
+                                model.Users[0].UserName)</a>
                         </th>
                         <th>
-                            <a asp-action="Users" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Users[0].Email)</a>
+                            <a asp-action="Users" asp-route-sortOrder="@ViewData["EmailSortParm"]"
+                                asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model =>
+                                model.Users[0].Email)</a>
                         </th>
                         <th>@Html.DisplayNameFor(model => model.Users[0].Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.Users[0].Roles)</th>
                         <th>@Html.DisplayNameFor(model => model.Users[0].EmailConfirmed)</th>
                         <th>Actions</th>
                     </tr>
@@ -57,17 +64,20 @@
                             <td>@Html.DisplayFor(modelItem => item.UserName)</td>
                             <td>@Html.DisplayFor(modelItem => item.Email)</td>
                             <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Roles)</td>
                             @if (item.EmailConfirmed == true)
                             {
                                 <td>True</td>
                             }
                             else
                             {
-                                <td>false</td>
+                                <td>False</td>
                             }
                             <td>
-                                <a class="btn btn-primary" asp-controller="Posts" asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-pencil-alt"></i></a>
-                                <a class="btn btn-danger" asp-controller="Posts" asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>
+                                <a class="btn btn-primary" asp-controller="Posts" asp-action="Edit"
+                                    asp-route-id="@item.Id"><i class="fas fa-pencil-alt"></i></a>
+                                <a class="btn btn-danger" asp-controller="Posts" asp-action="Delete"
+                                    asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>
                             </td>
                         </tr>
                     }
@@ -76,7 +86,8 @@
         </div>
         <div class="row">
             <div class="col-md-6 align-self-center">
-                <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing @ViewBag.StartItem to @ViewBag.EndItem of @ViewBag.TotalPages</p>
+                <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing
+                    @ViewBag.StartItem to @ViewBag.EndItem of @ViewBag.TotalPages</p>
             </div>
             <div class="col-md-6">
                 <nav class="d-lg-flex justify-content-lg-end">
@@ -85,7 +96,9 @@
                         @if (Model.Users.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@(Model.Users.PageIndex - 1)">
+                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                    asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                    asp-route-pageNumber="@(Model.Users.PageIndex - 1)">
                                     <span aria-hidden="true">«</span>
                                 </a>
                             </li>
@@ -109,7 +122,8 @@
                             else
                             {
                                 <li class="page-item">
-                                    <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@i">@i</a>
+                                    <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                        asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@i">@i</a>
                                 </li>
                             }
                         }
@@ -118,7 +132,9 @@
                         @if (Model.Users.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-pageNumber="@(Model.Users.PageIndex + 1)">
+                                <a class="page-link" asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                    asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                    asp-route-pageNumber="@(Model.Users.PageIndex + 1)">
                                     <span aria-hidden="true">»</span>
                                 </a>
                             </li>

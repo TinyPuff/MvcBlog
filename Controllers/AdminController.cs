@@ -29,7 +29,7 @@ public class AdminController : Controller
     }
 
     // GET
-    public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
         ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
@@ -56,7 +56,7 @@ public class AdminController : Controller
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            posts = posts.Where(p => p.Title.ToLower().Contains(searchString.ToLower()) 
+            posts = posts.Where(p => p.Title.ToLower().Contains(searchString.ToLower())
                 || p.Author.UserName.ToLower().Contains(searchString.ToLower()));
         }
 
@@ -103,7 +103,7 @@ public class AdminController : Controller
         return View(adminPostsVM);
     }
 
-    public async Task<IActionResult> Categories(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    public async Task<IActionResult> Categories(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
         ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
@@ -133,7 +133,7 @@ public class AdminController : Controller
                 categories = categories.OrderBy(p => p.Title);
                 break;
             case "title_desc":
-               categories =categories.OrderByDescending(p => p.Title);
+                categories = categories.OrderByDescending(p => p.Title);
                 break;
             case "id_desc":
                 categories = categories.OrderByDescending(p => p.ID);
@@ -158,7 +158,7 @@ public class AdminController : Controller
         return View(adminCategoriesVM);
     }
 
-    public async Task<IActionResult> Comments(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    public async Task<IActionResult> Comments(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
         ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
@@ -186,7 +186,7 @@ public class AdminController : Controller
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            comments = comments.Where(p => p.Post.Title.ToLower().Contains(searchString.ToLower()) 
+            comments = comments.Where(p => p.Post.Title.ToLower().Contains(searchString.ToLower())
                 || p.Author.UserName.ToLower().Contains(searchString.ToLower()));
         }
 
@@ -233,7 +233,7 @@ public class AdminController : Controller
         return View(adminCommentsVM);
     }
 
-    public async Task<IActionResult> Users(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter,  string? searchString)
+    public async Task<IActionResult> Users(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
         ViewData["EmailSortParm"] = sortOrder == "Email" ? "email_desc" : "Email";
@@ -253,13 +253,19 @@ public class AdminController : Controller
             searchString = currentFilter;
         }
 
-        var users = _context.Users.AsQueryable();
+        var users = _userManager.Users.AsQueryable();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            user.Roles = string.Join(", ", roles);
+        }
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            users = users.Where(p => p.UserName.ToLower().Contains(searchString.ToLower()) 
+            users = users.Where(p => p.UserName.ToLower().Contains(searchString.ToLower())
                 || p.Name.ToLower().Contains(searchString.ToLower())
-                || p.UserName.ToLower().Contains(searchString.ToLower()) 
+                || p.Roles.ToLower().Contains(searchString.ToLower())
                 || p.Email.ToLower().Contains(searchString.ToLower()));
         }
 
