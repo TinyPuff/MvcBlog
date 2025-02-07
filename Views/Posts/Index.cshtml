@@ -1,7 +1,7 @@
-@model IEnumerable<MvcBlog.Models.Post>
+@model MvcBlog.Models.ViewModels.HomeVM
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "My Posts";
 }
 
 <h1>Index</h1>
@@ -9,51 +9,70 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Body)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.Raw(item.Body)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.UserName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
+
+@foreach (var item in Model.Posts)
+{
+    <div class="card w-50 mb-2">
+        <div class="card-body">
+            <h4 class="card-title">@item.Title</h4>
+            <h6 class="card-subtitle mb-2 text-body-secondary">By @item.Author.UserName,
+                Posted On: @Html.DisplayFor(modelItem => item.CreatedAt)</h6>
+            <p class="card-text">@Html.Raw(item.Body)</p>
+            <a class="btn btn-primary" href="/Posts/Details/@item.ID">Read more</a>
+        </div>
+    </div>
 }
-    </tbody>
-</table>
+
+@{
+    var prevDisabled = !Model.Posts.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Posts.HasNextPage ? "disabled" : "";
+}
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <!-- Previous Page Link -->
+        @if (Model.Posts.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex - 1)">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+        }
+
+        <!-- Page Number Links -->
+        @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+        {
+            if (i == Model.Posts.PageIndex)
+            {
+                <li class="page-item active">
+                    <span class="page-link">@i</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+        }
+
+        <!-- Next Page Link -->
+        @if (Model.Posts.HasNextPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-pageNumber="@(Model.Posts.PageIndex + 1)">Next</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+        }
+    </ul>
+</nav>

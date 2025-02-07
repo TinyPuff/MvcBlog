@@ -26,10 +26,23 @@ namespace MvcBlog.Controllers
         }
 
         // GET: Posts
-        public async Task<IActionResult> Index()
+        [Authorize]
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? pageNumber)
         {
-            var blogDbContext = _context.Post.Include(p => p.Author);
-            return View(await blogDbContext.ToListAsync());
+            var posts = _context.Post
+                        .Include(p => p.Author)
+                        .Where(p => p.AuthorID == _userManager.GetUserId(User))
+                        .OrderByDescending(p => p.CreatedAt);
+
+            int pageSize = 3;
+            var paginatedPosts = await PaginatedList<Post>.CreateAsync(posts, pageNumber ?? 1, pageSize);
+
+            var homeVM = new HomeVM
+            {
+                Posts = paginatedPosts
+            };
+
+            return View(homeVM);
         }
 
         // GET: Posts/Details/5
