@@ -1,5 +1,4 @@
 @model MvcBlog.Models.ViewModels.PostVM
-@using System.Linq
 
 @{
     ViewData["Title"] = "Edit";
@@ -10,58 +9,60 @@
         type="text/css" />
 }
 
-<h1>Edit</h1>
-
-<h4>Post</h4>
-<hr />
-<form asp-action="Edit">
-    <div class="row">
-        <div class="col-md-4">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-2">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+<div class="row mt-4">
+    <div class="col-md-6 mx-auto">
+        <div class="card border rounded-0 border-2 shadow-sm">
+            <div class="card-header text-white" style="background-color: #7b3f9e;">
+                <h5>Edit Post</h5>
             </div>
-            <div class="form-group mb-2">
-                <label asp-for="Body" class="control-label"></label>
-                <textarea asp-for="Body" class="form-control" id="froala-editor" rows="10"></textarea>
-                <span asp-validation-for="Body" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-2">
-                <input type="submit" value="Edit" class="btn btn-primary" />
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-group form-check-inline mb-2">
-                <label class="form-check-label">Categories: </label>
-                <select asp-for="SelectedCategories" class="form-select" multiple aria-label="Multiple select example">
-                    @foreach (var item in ViewBag.Categories)
-                    {
-                        if (ViewBag.SelectedCategories.Contains(item))
-                        {
-                            <option selected value="@item.ID">@item.Title</option>
-                        }
-                        else
-                        {
-                            <option value="@item.ID">@item.Title</option>
-                        }
-                    }
-                </select>
-                <span asp-validation-for="SelectedCategories" class="text-danger"></span>
+            <div class="card-body">
+                <form asp-controller="Posts" asp-action="Edit">
+                    <div class="mb-3">
+                        <label asp-for="Title" for="title" class="form-label">Title</label>
+                        <input type="text" asp-for="Title" class="form-control" id="title"
+                            placeholder="Enter post title">
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Body" for="froala-editor" class="form-label">Body</label>
+                        <textarea asp-for="Body" class="form-control" id="froala-editor-dark-theme" rows="4"
+                            placeholder="Enter post content"></textarea>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SelectedCategories" for="categories"
+                            class="form-label">Categories</label>
+                        <select asp-for="SelectedCategories" class="form-select" id="categories" multiple
+                            aria-label="Multiple select example">
+                            @foreach (var item in ViewBag.Categories)
+                            {
+                                if (ViewBag.SelectedCategories.Contains(item))
+                                {
+                                    <option selected value="@item.ID">@item.Title</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.ID">@item.Title</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="SelectedCategories" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Edit Post</button>
+                </form>
+                <a class="btn btn-secondary mt-2" asp-action="Index">Back to List</a>
             </div>
         </div>
     </div>
-</form>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>  
     <script> 
-        var editor = new FroalaEditor('textarea#froala-editor');
+        var editor = new FroalaEditor('textarea#froala-editor-dark-theme',
+        {
+            theme: 'dark'
+        });
     </script>
 }

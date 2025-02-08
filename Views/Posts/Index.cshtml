@@ -6,16 +6,18 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<a class="btn btn-primary mb-2" asp-action="Create">Create New</a>
 
 @foreach (var item in Model.Posts)
 {
     <div class="card w-50 mb-2">
         <div class="card-body">
+            <div class="position-absolute top-0 end-0 me-3 mt-3">
+            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.ID"><i class="fas fa-pencil-alt"></i></a>
+            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.ID"><i class="fas fa-trash"></i></a>
+            </div>
             <h4 class="card-title">@item.Title</h4>
-            <h6 class="card-subtitle mb-2 text-body-secondary">By @item.Author.UserName,
+            <h6 class="card-subtitle mb-2">By @item.Author.UserName,
                 Posted On: @Html.DisplayFor(modelItem => item.CreatedAt)</h6>
             <p class="card-text">@Html.Raw(item.Body)</p>
             <a class="btn btn-primary" href="/Posts/Details/@item.ID">Read more</a>
