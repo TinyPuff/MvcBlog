@@ -56,7 +56,9 @@ namespace MvcBlog.Controllers
             var post = await _context.Post
                 .Include(p => p.Author)
                 .Include(c => c.Categories)
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .Include(c => c.Comments!)
+                    .ThenInclude(i => i.Author)
+                .FirstOrDefaultAsync(p => p.ID == id);
             if (post == null)
             {
                 return NotFound();
@@ -94,7 +96,8 @@ namespace MvcBlog.Controllers
 
             var post = await _context.Post
                 .Include(p => p.Author)
-                .Include(c => c.Comments)
+                .Include(c => c.Comments!)
+                    .ThenInclude(i => i.Author)
                 .FirstOrDefaultAsync(p => p.ID == id);
 
             if (post == null)
@@ -264,7 +267,7 @@ namespace MvcBlog.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { id = postToUpdate.ID });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
