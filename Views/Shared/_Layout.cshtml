@@ -1,3 +1,8 @@
+@{
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var searchLanding = controllerName == "Posts" ? "Posts" : "Home";
+}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,141 +14,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@4.0.15/css/themes/dark.min.css">
+    <link rel="stylesheet" href="~/css/_Layout.css">
     @RenderSection("Head", required: false)
-    <style>
-        :root {
-            --bs-body-bg: #1b1b1f;
-            --bs-body-color: #e4e4e7;
-            --bs-primary: #7b3f9e;
-            --bs-secondary: #9b59b6;
-            --bs-dark: #121212;
-        }
-
-        body {
-            background-color: var(--bs-body-bg);
-            color: var(--bs-body-color);
-        }
-
-        .navbar {
-            background-color: var(--bs-primary) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: white !important;
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8) !important;
-        }
-
-        .nav-link:hover {
-            color: white !important;
-        }
-
-        .navbar-toggler {
-            border: none;
-        }
-
-        .btn-primary {
-            --bs-btn-color: #fff;
-            --bs-btn-bg: var(--bs-primary);
-            --bs-btn-border-color: var(--bs-primary);
-            --bs-btn-hover-color: #fff;
-            --bs-btn-hover-bg: var(--bs-primary);
-            --bs-btn-hover-border-color: var(--bs-primary);
-            --bs-btn-focus-shadow-rgb: 49, 132, 253;
-            --bs-btn-active-color: #fff;
-            --bs-btn-active-bg: var(--bs-secondary);
-            --bs-btn-active-border-color: var(--bs-secondary);
-            --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-            --bs-btn-disabled-color: #fff;
-            --bs-btn-disabled-bg: var(--bs-primary);
-            --bs-btn-disabled-border-color: var(--bs-primary);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--bs-secondary);
-        }
-
-        .card {
-            background-color: #222;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .dropdown-menu {
-            --bs-dropdown-link-color: rgba(255, 255, 255, 0.8);
-            --bs-dropdown-link-hover-color: var(--bs-primary);
-            --bs-dropdown-link-hover-bg: none;
-            --bs-dropdown-link-active-color: #fff;
-            --bs-dropdown-link-active-bg: var(--bs-secondary);
-        }
-
-        .search-bar::placeholder {
-            color: grey;
-        }
-
-        .form-control::placeholder {
-            color: grey;
-        }
-
-        .page-link {
-            color: var(--bs-primary);
-            border-color: var(--bs-primary);
-        }
-
-        .page-link:hover {
-            color: white;
-            background-color: var(--bs-secondary);
-            border: var(--bs-secondary);
-        }
-
-        .active>.page-link {
-            color: white;
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
-        }
-
-        .pagination {
-            --bs-pagination-color: var(--bs-primary);
-            --bs-pagination-bg: var(--bs-body-bg);
-            --bs-pagination-border-width: var(--bs-border-width);
-            --bs-pagination-border-color: var(--bs-border-color);
-            --bs-pagination-border-radius: var(--bs-border-radius);
-            --bs-pagination-hover-color: var(--bs-primary);
-            --bs-pagination-hover-bg: var(--bs-tertiary-bg);
-            --bs-pagination-hover-border-color: var(--bs-border-color);
-            --bs-pagination-focus-color: var(--bs-primary);
-            --bs-pagination-focus-bg: var(--bs-secondary-bg);
-            --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-            --bs-pagination-active-color: #fff;
-            --bs-pagination-active-bg: var(--bs-primary);
-            --bs-pagination-active-border-color: var(--bs-primary);
-            --bs-pagination-disabled-color: var(--bs-secondary-color);
-            --bs-pagination-disabled-bg: var(--bs-secondary-bg);
-            --bs-pagination-disabled-border-color: var(--bs-border-color);
-        }
-
-        .dark-theme .fr-element {
-            background: #181a1b !important;
-        }
-
-        .dark-theme.fr-box.fr-basic .fr-element {
-            color: #bfb9b1;
-        }
-
-        .dark-theme .fr-second-toolbar {
-            border-top-color: #766e61;
-            border-right-color: #766e61;
-            border-bottom-color: #766e61;
-            border-left-color: #766e61;
-            background-color: #131516;
-            background: #181a1b;
-        }
-    </style>
 </head>
 
 <body>
@@ -162,9 +34,9 @@
                 </ul>
 
 
-                <form class="d-flex">
-                    <input class="form-control search-bar" type="search" placeholder="Search posts..."
-                        aria-label="Search">
+                <form class="d-flex" method="get" asp-controller="@searchLanding" asp-action="Index">
+                    <input class="form-control search-bar" type="search" name="searchString"
+                        placeholder="Search posts..." aria-label="Search" value="@ViewData["CurrentFilter"]">
                     <button class="btn btn-primary border-0" type="submit"><i class="fas fa-search"></i></button>
                 </form>
 

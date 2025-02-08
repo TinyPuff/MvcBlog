@@ -29,10 +29,28 @@ namespace MvcBlog.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string currentFilter, string searchString, int? pageNumber)
         {
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
             var posts = _context.Post
                         .Include(p => p.Author)
                         .Where(p => p.AuthorID == _userManager.GetUserId(User))
-                        .OrderByDescending(p => p.CreatedAt);
+                        .OrderByDescending(p => p.CreatedAt)
+                        .AsQueryable();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                posts = posts.Where(p => p.Title.ToLower().Contains(searchString.ToLower())
+                    || p.Body.ToLower().Contains(searchString.ToLower()));
+            }
 
             int pageSize = 3;
             var paginatedPosts = await PaginatedList<Post>.CreateAsync(posts, pageNumber ?? 1, pageSize);
