@@ -47,8 +47,12 @@
                         </th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].Body)</th>
                         <th>@Html.DisplayNameFor(model => model.Posts[0].Author)</th>
-                        <th>@Html.DisplayNameFor(model => model.Posts[0].CreatedAt)</th>
-                        <th>@Html.DisplayNameFor(model => model.Posts[0].UpdatedAt)</th>
+                        <th>
+                            <a asp-action="Posts" asp-route-sortOrder="@ViewData["CreateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Posts[0].CreatedAt)</a>
+                        </th>
+                        <th>
+                            <a asp-action="Posts" asp-route-sortOrder="@ViewData["UpdateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">@Html.DisplayNameFor(model => model.Posts[0].UpdatedAt)</a>
+                        </th>
                         <th>Actions</th>
                     </tr>
                 </thead>
