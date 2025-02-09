@@ -15,11 +15,21 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 var app = builder.Build();
 
-// Seed roles and users
+// Seed the database.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedData.Initialize(services);
+    var context = services.GetRequiredService<BlogDbContext>();
+    context.Database.EnsureCreated();
+    try
+    {
+        await SeedData.Initialize(services, context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred seeding the DB.");
+    }
 }
 
 // Configure the HTTP request pipeline.
