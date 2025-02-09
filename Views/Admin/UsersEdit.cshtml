@@ -1,0 +1,75 @@
+@model MvcBlog.Models.ViewModels.AdminUsersEditVM
+
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "User Edit";
+}
+
+@section Head {
+    <link href="https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css" rel="stylesheet"
+        type="text/css" />
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="row mt-4">
+            <div class="col-md-8 mx-auto">
+                <div class="card border rounded-0 border-2 shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5>Editing User Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UsersEdit">
+                            <div class="mb-3">
+                                <label asp-for="Username" for="username" class="form-label">Username</label>
+                                <input type="text" asp-for="Username" class="form-control" id="username"
+                                    placeholder="Enter username">
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Email" for="email" class="form-label">Email</label>
+                                <input type="text" asp-for="Email" class="form-control" id="email"
+                                    placeholder="Enter email">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="SelectedRoles" for="roles"
+                                    class="form-label">Roles</label>
+                                <select asp-for="SelectedRoles" class="form-select" id="roles" multiple
+                                    aria-label="Multiple select example">
+                                    @if (Model.Roles != null)
+                                    {
+                                        foreach (var item in Model.Roles)
+                                        {
+                                            if (Model.SelectedRoles.Contains(item.Name))
+                                            {
+                                                <option selected value="@item.Name">@item.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Name">@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="SelectedRoles" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type='text/javascript'
+        src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
+    <script>
+        var editor = new FroalaEditor('textarea#froala-editor');
+    </script>
+}

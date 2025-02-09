@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.ObjectModel;
 
 namespace MvcBlog.Controllers;
 
@@ -15,14 +16,16 @@ public class AdminController : Controller
 {
     private readonly BlogDbContext _context;
     private UserManager<BlogUser> _userManager;
+    private RoleManager<IdentityRole> _roleManager;
 
-    public AdminController(BlogDbContext context, UserManager<BlogUser> userManager)
+    public AdminController(BlogDbContext context, UserManager<BlogUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _context = context;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
-    // GET
+    // GET: /Admin/
     public IActionResult Index()
     {
         var categories = _context.Categories.ToList();
@@ -38,7 +41,7 @@ public class AdminController : Controller
         return View(dashboardInfo);
     }
 
-    // GET
+    // GET: /Admin/Posts/
     public async Task<IActionResult> Posts(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -113,6 +116,7 @@ public class AdminController : Controller
         return View(adminPostsVM);
     }
 
+    // GET: /Admin/Categories/
     public async Task<IActionResult> Categories(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -168,6 +172,7 @@ public class AdminController : Controller
         return View(adminCategoriesVM);
     }
 
+    // GET: /Admin/Comments/
     public async Task<IActionResult> Comments(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -243,6 +248,7 @@ public class AdminController : Controller
         return View(adminCommentsVM);
     }
 
+    // GET: /Admin/Users/
     public async Task<IActionResult> Users(int? pageNumber, int? pageSize, string? sortOrder, string? currentFilter, string? searchString)
     {
         ViewData["CurrentSort"] = sortOrder;
@@ -275,7 +281,6 @@ public class AdminController : Controller
         {
             users = users.Where(p => p.UserName.ToLower().Contains(searchString.ToLower())
                 || p.Name.ToLower().Contains(searchString.ToLower())
-                || p.Roles.ToLower().Contains(searchString.ToLower())
                 || p.Email.ToLower().Contains(searchString.ToLower()));
         }
 
@@ -314,5 +319,146 @@ public class AdminController : Controller
         ViewBag.EndItem = Math.Min(ViewBag.StartItem + (pageSize ?? 5) - 1, users.Count()); // Shows the index of the last item on the table
 
         return View(adminUsersVM);
+    }
+
+    // GET: /Admin/Users/Edit/{user.Id}
+    [Route("Admin/Users/Edit/{id}")]
+    public async Task<IActionResult> UsersEdit(string? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            return RedirectToAction(nameof(Users));
+        }
+
+        var roles = _roleManager.Roles; // Fetch all roles
+        var userRoles = _context.UserRoles
+            .Where(ur => ur.UserId == user.Id); // Fetch all the roles of the selected user
+        var selectedRoles = new Collection<string>();
+
+        foreach (var item in userRoles) // Adding all the already assigned roles to 'selectedRoles' in order to pass it to the view
+        {
+            selectedRoles.Add(
+                (await roles.FirstOrDefaultAsync(r => r.Id == item.RoleId)).Name
+            );
+        }
+
+        var userVM = new AdminUsersEditVM
+        {
+            ID = user.Id,
+            Username = user.UserName,
+            Email = user.Email,
+            SelectedRoles = selectedRoles,
+            Roles = roles
+        };
+
+        return View(userVM);
+    }
+
+    // POST: /Admin/Users/Edit/{user.Id}
+    [Route("Admin/Users/Edit/{id}")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UsersEdit(string id, [Bind("ID,Username,Email,SelectedRoles")] AdminUsersEditVM user)
+    {
+        var userToUpdate = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+        var userRoles = await _userManager.GetRolesAsync(userToUpdate);
+
+        if (userToUpdate == null)
+        {
+            return RedirectToAction(nameof(Users));
+        }
+
+        foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            Console.WriteLine(error.ErrorMessage);
+        }
+
+        if (ModelState.IsValid)
+        {
+            userToUpdate.UserName = user.Username;
+            userToUpdate.Email = user.Email;
+
+            await _userManager.RemoveFromRolesAsync(userToUpdate, userRoles); // Remove all previous roles
+
+            foreach (var item in user.SelectedRoles)
+            {
+                await _userManager.AddToRoleAsync(userToUpdate, item); // Set the new roles
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Users));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(userToUpdate.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+        return View(user);
+    }
+
+    // GET: /Admin/Users/Delete/{user.id}
+    [Route("Admin/Users/Delete/{id}")]
+    public async Task<IActionResult> UsersDelete(string? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+        
+        var userVM = new AdminUsersEditVM
+        {
+            ID = user.Id,
+            Username = user.UserName,
+            Email = user.Email
+        };
+        
+        return View(userVM);
+    }
+
+    // POST: /Admin/Users/Delete/{user.Id}
+    [Route("Admin/Users/Delete/{id}")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UsersDelete(string id, [Bind("ID,Username,Email")] AdminUsersEditVM user)
+    {
+        var userToDelete = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+        
+        if (userToDelete != null)
+        {
+            _context.Users.Remove(userToDelete);
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Users));
+    }
+
+    private bool UserExists(string id)
+    {
+        return _userManager.Users.Any(u => u.Id == id);
     }
 }

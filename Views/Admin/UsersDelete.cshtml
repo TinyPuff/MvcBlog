@@ -1,0 +1,16 @@
+@model MvcBlog.Models.ViewModels.AdminUsersEditVM
+
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "User Delete";
+}
+
+<div class="container mt-4">
+    <h3>Deleting User</h3>
+    <hr />
+    <p>Are you sure you want to delete the user "@Model.Username"?</p>
+    <form asp-action="UsersDelete">
+        <button type="submit" class="btn btn-primary">Confirm</button>
+        <a class="btn btn-danger" asp-action="Users">Back to List</a>
+    </form>
+</div>
